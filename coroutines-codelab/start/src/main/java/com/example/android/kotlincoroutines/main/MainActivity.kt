@@ -20,18 +20,25 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import com.example.android.kotlincoroutines.R
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Show layout.activity_main and setup data binding.
  */
 class MainActivity : AppCompatActivity() {
-
+    private lateinit var job:Job
     /**
      * Inflate layout.activity_main and setup data binding.
      */
@@ -81,6 +88,35 @@ class MainActivity : AppCompatActivity() {
                 Snackbar.make(rootLayout, text, Snackbar.LENGTH_SHORT).show()
                 viewModel.onSnackbarShown()
             }
+        }
+    }
+    private fun runjob(){
+       if(!this::job.isInitialized){
+           initJob()
+       }
+        CoroutineScope(IO+job).launch {
+
+        }
+
+
+    }
+
+    private fun initJob(){
+        job = Job()
+        job.invokeOnCompletion {
+            it?.message.let{
+                var message = it
+                if(message.isNullOrBlank()){
+                    message = "Unknown cancelation message"
+                }
+                println("$job was canceled reason $message")
+                showToast(message)
+            }
+        }
+    }
+    private  fun showToast(msg:String){
+        CoroutineScope(Main).launch{
+            Toast.makeText(this@MainActivity,msg,Toast.LENGTH_SHORT).show()
         }
     }
 }

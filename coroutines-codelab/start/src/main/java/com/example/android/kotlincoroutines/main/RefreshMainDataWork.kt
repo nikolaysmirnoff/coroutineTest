@@ -41,6 +41,8 @@ class RefreshMainDataWork(context: Context, params: WorkerParameters, private va
      * start just enough to run this [Worker].
      */
     override suspend fun doWork(): Result {
+        val database = getDatabase(applicationContext)
+        val repository = TitleRepository(network,database.titleDao)
         return Result.success()         // TODO: Use coroutines from WorkManager
     }
 
